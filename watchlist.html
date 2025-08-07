@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>My Watchlist – MovieMate</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #00e5ff;
+      --primary-dark: #00b4cc;
+      --secondary: #ff2d75;
+      --dark-bg: #121212;
+      --card-dark: #1e1e1e;
+      --text-dark: #e0e0e0;
+      --text-light: #f8f9fa;
+      --success: #28a745;
+      --danger: #dc3545;
+      --warning: #ffc107;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+
+    .watchlist-header {
+      background: linear-gradient(135deg, rgba(0,229,255,0.1) 0%, rgba(0,10,20,0.8) 100%);
+      padding: 1.5rem 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(0,229,255,0.2);
+    }
+
+    .movie-card {
+      background-color: var(--card-dark);
+      border-radius: 12px;
+      border: 1px solid rgba(0,229,255,0.3);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      height: 100%;
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .movie-card.loading {
+      min-height: 350px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 229, 255, 0.3);
+      border-color: var(--primary);
+    }
+
+    .movie-poster-container {
+      position: relative;
+      padding-top: 150%;
+      overflow: hidden;
+    }
+
+    .movie-poster {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: all 0.3s ease;
+      background: linear-gradient(110deg, #1e1e1e 8%, #2a2a2a 18%, #1e1e1e 33%);
+      background-size: 200% 100%;
+      animation: 1.5s shine linear infinite;
+    }
+
+    @keyframes shine {
+      to {
+        background-position-x: -200%;
+      }
+    }
+
+    .movie-card:hover .movie-poster {
+      transform: scale(1.03);
+    }
+
+    .movie-title {
+      font-weight: 600;
+      color: var(--primary);
+      margin: 12px 0 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding: 0 12px;
+      font-size: 1.1rem;
+    }
+
+    .movie-title:hover {
+      color: var(--primary-dark);
+    }
+
+    .btn-remove {
+      background-color: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-remove:hover {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-recommend {
+      background-color: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      transition: all 0.3s ease;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-recommend:hover {
+      background-color: var(--primary);
+      color: var(--dark-bg);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 0;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    .empty-state i {
+      font-size: 3.5rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+    }
+
+    .search-box {
+      max-width: 100%;
+      margin: 0 auto 1.5rem;
+    }
+
+    .sort-options {
+      margin-bottom: 1.5rem;
+    }
+
+    .toast-notification {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      left: 20px;
+      z-index: 1000;
+      animation: slideIn 0.3s ease-out;
+      max-width: 100%;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 2rem;
+      height: 2rem;
+      border: 0.25em solid rgba(0, 229, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .light-mode {
+      background-color: #f8f9fa;
+      color: #212529;
+    }
+
+    .light-mode .movie-card {
+      background-color: white;
+      border-color: #dee2e6;
+    }
+
+    .light-mode .movie-title {
+      color: var(--primary-dark);
+    }
+
+    .light-mode .movie-title:hover {
+      color: var(--primary);
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+      padding: 0 12px;
+    }
+
+    .badge-warning {
+      background-color: var(--warning);
+      color: #212529;
+      font-size: 0.85rem;
+      padding: 0.35em 0.65em;
+    }
+
+    .skeleton-loader {
+      background: linear-gradient(110deg, #1e1e1e 8%, #2a2a2a 18%, #1e1e1e 33%);
+      background-size: 200% 100%;
+      animation: 1.5s shine linear infinite;
+      border-radius: 4px;
+    }
+
+    .light-mode .skeleton-loader {
+      background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    }
+
+    .movie-actions {
+      display: grid;
+      gap: 0.75rem;
+      margin-top: 1rem;
+      padding: 0 12px 12px;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      flex-direction: column;
+      color: var(--primary);
+    }
+
+    .loading-overlay p {
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    .movie-card-content {
+      padding: 0;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 767px) {
+      .watchlist-header {
+        padding: 1rem 0;
+      }
+      
+      .movie-card {
+        max-width: 320px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .movie-actions {
+        grid-template-columns: 1fr;
+      }
+      
+      .btn-recommend, .btn-remove {
+        width: 100%;
+      }
+      
+      .sort-options .btn {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+      }
+      
+      .empty-state i {
+        font-size: 3rem;
+      }
+      
+      .empty-state h3 {
+        font-size: 1.5rem;
+      }
+    }
+
+    @media (max-width: 575px) {
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .movie-poster-container {
+        padding-top: 140%;
+      }
+      
+      .movie-title {
+        font-size: 1rem;
+      }
+      
+      .badge-warning {
+        font-size: 0.8rem;
+      }
+      
+      .toast-notification {
+        right: 10px;
+        left: 10px;
+        bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode">
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+    <div class="loading-spinner"></div>
+    <p id="loadingText">Loading your watchlist...</p>
+  </div>
+
+  <!-- Theme Toggle -->
+  <div class="theme-toggle position-fixed top-0 end-0 m-3">
+    <button class="btn btn-sm btn-outline-primary" onclick="toggleTheme()" aria-label="Toggle theme">
+      <i class="fas fa-moon"></i>
+    </button>
+  </div>
+
+  <!-- Header -->
+  <header class="watchlist-header">
+    <div class="container text-center">
+      <h1><i class="fas fa-bookmark"></i> Your Watchlist</h1>
+      <p class="lead">All your saved movies in one place</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mb-4">
+    <!-- Search and Sort -->
+    <div class="row mb-3">
+      <div class="col-12 col-md-6 mb-3 mb-md-0">
+        <div class="search-box">
+          <div class="input-group">
+            <input type="text" class="form-control" id="searchInput" placeholder="Search your watchlist...">
+            <button class="btn btn-primary" onclick="searchMovies()" aria-label="Search">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-md-6 text-md-end">
+        <div class="sort-options btn-group w-100 w-md-auto">
+          <button class="btn btn-outline-primary active" onclick="sortMovies('added')">
+            <i class="fas fa-clock"></i> <span class="d-none d-md-inline">Recently Added</span>
+          </button>
+          <button class="btn btn-outline-primary" onclick="sortMovies('alpha')">
+            <i class="fas fa-sort-alpha-down"></i> <span class="d-none d-md-inline">A-Z</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Watchlist Grid -->
+    <div class="row g-4" id="watchlistGrid">
+      <!-- Movies will be loaded here -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <i class="fas fa-film"></i>
+      <h3>Your watchlist is empty</h3>
+      <p>Start adding movies to see them here</p>
+      <a href="/" class="btn btn-primary mt-3">
+        <i class="fas fa-search"></i> Find Movies
+      </a>
+    </div>
+  </main>
+
+  <!-- Back Button -->
+  <div class="container text-center mb-4">
+    <a href="/" class="btn btn-outline-primary">
+      <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+  </div>
+
+  <!-- Hidden form for recommendations -->
+  <form id="recommendForm" method="POST" action="/recommend" style="display:none;">
+    <input type="hidden" name="movie" id="hiddenMovieInput">
+  </form>
+
+  <!-- Toast Notification -->
+  <div class="toast-notification" id="toast" style="display: none;">
+    <div class="toast show">
+      <div class="toast-body d-flex justify-content-between align-items-center">
+        <span id="toastMessage"></span>
+        <button type="button" class="btn-close" onclick="hideToast()" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Global variables
+    let watchlist = [];
+    let currentSort = 'added';
+    let isLoading = false;
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      showLoadingOverlay('Loading your watchlist...');
+      loadWatchlist();
+      setThemeFromStorage();
+      
+      // Check for success message from URL
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.has('added')) {
+        showToast('Movie added to watchlist!');
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    });
+
+    // Show loading overlay with custom message
+    function showLoadingOverlay(message = 'Loading...') {
+      isLoading = true;
+      document.getElementById('loadingOverlay').style.display = 'flex';
+      document.getElementById('loadingText').textContent = message;
+    }
+
+    // Hide loading overlay
+    function hideLoadingOverlay() {
+      isLoading = false;
+      document.getElementById('loadingOverlay').style.display = 'none';
+    }
+
+    // Load watchlist from localStorage with performance optimization
+    function loadWatchlist() {
+      try {
+        // Show loading state
+        const container = document.getElementById('watchlistGrid');
+        container.innerHTML = '';
+        
+        // Create skeleton loaders
+        for (let i = 0; i < 8; i++) {
+          container.appendChild(createSkeletonLoader());
+        }
+
+        // Use requestAnimationFrame to ensure UI updates before heavy operation
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            const watchlistData = localStorage.getItem("movieWatchlist");
+            watchlist = watchlistData ? JSON.parse(watchlistData) : [];
+            
+            // Migrate from old format if needed
+            if (watchlist.length > 0 && typeof watchlist[0] === 'string') {
+              watchlist = watchlist.map(title => ({
+                title: title.replace("🎬", "").trim(),
+                poster: 'https://via.placeholder.com/300x450?text=No+Poster',
+                id: generateId(),
+                addedAt: Date.now()
+              }));
+              saveWatchlist();
+            }
+            
+            // Ensure all movies have IDs and timestamps
+            watchlist = watchlist.map(movie => {
+              if (!movie.id) movie.id = generateId();
+              if (!movie.addedAt) movie.addedAt = Date.now();
+              return movie;
+            });
+            
+            renderWatchlist();
+            hideLoadingOverlay();
+          }, 300); // Small delay to show loading state
+        });
+      } catch (e) {
+        console.error("Error loading watchlist:", e);
+        watchlist = [];
+        renderWatchlist();
+        hideLoadingOverlay();
+      }
+    }
+
+    // Generate unique ID for movies
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    // Create skeleton loader card
+    function createSkeletonLoader() {
+      const col = document.createElement('div');
+      col.className = 'col-lg-3 col-md-4 col-sm-6';
+      
+      const card = document.createElement('div');
+      card.className = 'movie-card loading';
+      
+      const skeleton = document.createElement('div');
+      skeleton.className = 'skeleton-loader';
+      skeleton.style.width = '100%';
+      skeleton.style.height = '100%';
+      
+      card.appendChild(skeleton);
+      col.appendChild(card);
+      return col;
+    }
+
+    // Save watchlist to localStorage with debounce
+    let saveTimeout;
+    function saveWatchlist() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        localStorage.setItem("movieWatchlist", JSON.stringify(watchlist));
+      }, 300);
+    }
+
+    // Render watchlist movies with optimized DOM updates
+    function renderWatchlist(filteredList = null) {
+      const container = document.getElementById('watchlistGrid');
+      const emptyState = document.getElementById('emptyState');
+      const moviesToRender = filteredList || watchlist;
+
+      // Use document fragment for batch DOM updates
+      const fragment = document.createDocumentFragment();
+
+      if (moviesToRender.length === 0) {
+        emptyState.style.display = 'block';
+        container.innerHTML = '';
+        return;
+      } else {
+        emptyState.style.display = 'none';
+      }
+
+      // Sort movies
+      const sortedMovies = sortMovieList(moviesToRender, currentSort);
+
+      // Create a range for animation delays
+      sortedMovies.forEach((movie, index) => {
+        const movieCard = createMovieCard(movie, index);
+        fragment.appendChild(movieCard);
+      });
+
+      // Batch update the DOM
+      container.innerHTML = '';
+      container.appendChild(fragment);
+    }
+
+    // Create movie card element with optimized event handling
+    function createMovieCard(movie, index) {
+      const col = document.createElement('div');
+      col.className = 'col-lg-3 col-md-4 col-sm-6';
+      
+      const card = document.createElement('div');
+      card.className = 'movie-card';
+      card.style.animation = `fadeIn 0.5s ease ${index * 0.05}s forwards`;
+      card.style.opacity = '0';
+      card.dataset.movieId = movie.id;
+
+      // Use movie data or fallbacks
+      const posterUrl = movie.poster || 'https://via.placeholder.com/300x450?text=No+Poster';
+      const title = movie.title || 'Unknown Title';
+      const rating = movie.rating || null;
+      const year = movie.year || null;
+      
+      card.innerHTML = `
+        <div class="movie-poster-container">
+          <img src="${posterUrl}" class="movie-poster" alt="${title}" 
+               onerror="this.src='https://via.placeholder.com/300x450?text=Poster+Not+Available'"
+               loading="lazy">
+        </div>
+        <div class="movie-card-content">
+          <h5 class="movie-title">${title}</h5>
+          <div class="movie-meta">
+            ${rating ? `<span class="badge badge-warning"><i class="fas fa-star"></i> ${rating}</span>` : ''}
+            ${year ? `<small class="text-muted">${year}</small>` : ''}
+          </div>
+          <div class="movie-actions">
+            <button class="btn btn-recommend">
+              <i class="fas fa-film"></i> Get Recommendations
+            </button>
+            <button class="btn btn-remove">
+              <i class="fas fa-trash-alt"></i> Remove
+            </button>
+          </div>
+        </div>
+      `;
+      
+      // Add event listeners directly to elements for better performance
+      const titleElement = card.querySelector('.movie-title');
+      const recommendBtn = card.querySelector('.btn-recommend');
+      const removeBtn = card.querySelector('.btn-remove');
+      
+      titleElement.addEventListener('click', () => recommendMovie(title));
+      recommendBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        recommendMovie(title);
+      });
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        removeFromWatchlist(movie.id, title);
+      });
+      
+      col.appendChild(card);
+      return col;
+    }
+
+    // Sort movies based on current sort option
+    function sortMovieList(movies, sortBy) {
+      switch(sortBy) {
+        case 'alpha':
+          return [...movies].sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        case 'rating':
+          return [...movies].sort((a, b) => (b.rating || 0) - (a.rating || 0));
+        case 'added':
+        default:
+          return [...movies].sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+      }
+    }
+
+    // Sort movies
+    function sortMovies(sortBy) {
+      currentSort = sortBy;
+      renderWatchlist();
+      
+      // Update active button
+      document.querySelectorAll('.sort-options .btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    // Search movies with debounce
+    let searchTimeout;
+    function searchMovies() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        if (!searchTerm) {
+          renderWatchlist();
+          return;
+        }
+
+        const filtered = watchlist.filter(movie => 
+          (movie.title || '').toLowerCase().includes(searchTerm)
+        );
+        renderWatchlist(filtered);
+      }, 300);
+    }
+
+    // Remove movie from watchlist by ID
+    function removeFromWatchlist(id, title) {
+      if (isLoading) return;
+      
+      showLoadingOverlay('Removing movie...');
+      
+      // Use requestAnimationFrame for smooth removal
+      requestAnimationFrame(() => {
+        watchlist = watchlist.filter(movie => movie.id !== id);
+        saveWatchlist();
+        showToast(`"${title}" removed from watchlist`);
+        renderWatchlist();
+        hideLoadingOverlay();
+      });
+    }
+
+    // Submit recommendation form
+    function recommendMovie(title) {
+      document.getElementById('hiddenMovieInput').value = title;
+      document.getElementById('recommendForm').submit();
+    }
+
+    // Show toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      
+      toastMessage.textContent = message;
+      toast.style.display = 'block';
+      
+      // Auto-hide after delay
+      clearTimeout(toast.hideTimeout);
+      toast.hideTimeout = setTimeout(() => {
+        hideToast();
+      }, 3000);
+    }
+
+    // Hide toast
+    function hideToast() {
+      document.getElementById('toast').style.display = 'none';
+    }
+
+    // Theme toggle functions
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+      updateThemeIcon();
+    }
+
+    function setThemeFromStorage() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.body.classList.replace('dark-mode', 'light-mode');
+      }
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const icon = document.querySelector('.theme-toggle i');
+      if (document.body.classList.contains('light-mode')) {
+        icon.className = 'fas fa-sun';
+      } else {
+        icon.className = 'fas fa-moon';
+      }
+    }
+
+    // Handle Enter key in search
+    document.getElementById('searchInput').addEventListener('keyup', function(e) {
+      if (e.key === 'Enter') {
+        searchMovies();
+      }
+    });
+
+    // Optimized add movie function
+    function addMovieToWatchlist(movieData) {
+      if (!movieData.id) {
+        movieData.id = generateId();
+      }
+      if (!movieData.addedAt) {
+        movieData.addedAt = Date.now();
+      }
+      
+      // Check if movie already exists
+      const exists = watchlist.some(m => m.id === movieData.id || m.title === movieData.title);
+      
+      if (!exists) {
+        watchlist.push(movieData);
+        saveWatchlist();
+        return true;
+      }
+      return false;
+    }
+
+    // Expose functions to global scope for cross-page communication
+    window.MovieMate = {
+      addMovieToWatchlist: function(movieData) {
+        const success = addMovieToWatchlist(movieData);
+        if (success) {
+          showToast(`"${movieData.title}" added to watchlist!`);
+          renderWatchlist();
+        }
+        return success;
+      },
+      loadWatchlist: loadWatchlist,
+      showToast: showToast
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile – MovieMate</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6c5ce7;
+      --secondary-color: #a29bfe;
+      --dark-color: #2d3436;
+      --light-color: #f5f6fa;
+      --success-color: #00b894;
+      --warning-color: #fdcb6e;
+      --danger-color: #d63031;
+      --text-dark: #212529;
+      --text-light: #f8f9fa;
+      --bg-dark: #121212;
+      --bg-light: #f8f9fa;
+      --card-dark: #1e1e1e;
+      --card-light: #ffffff;
+    }
+    
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      transition: all 0.3s ease;
+    }
+    
+    body.light-mode {
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+    }
+    
+    body.light-mode .profile-card,
+    body.light-mode .stats-card,
+    body.light-mode .feedback-item,
+    body.light-mode .device-card,
+    body.light-mode .list-group-item,
+    body.light-mode .modal-content {
+      background-color: var(--card-light);
+      color: var(--text-dark);
+    }
+    
+    body.light-mode .info-value,
+    body.light-mode .user-email,
+    body.light-mode .feedback-date,
+    body.light-mode small.text-muted {
+      color: var(--text-dark) !important;
+    }
+    
+    .profile-card {
+      background: var(--card-dark);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+    }
+    
+    .profile-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .profile-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      padding: 30px 0;
+      text-align: center;
+      position: relative;
+    }
+    
+    .profile-pic-container {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      border: 5px solid rgba(255, 255, 255, 0.2);
+      margin: 0 auto;
+      overflow: hidden;
+      background-color: #333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .profile-pic {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .profile-body {
+      padding: 30px;
+    }
+    
+    .user-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+    
+    .user-email {
+      color: #b0b0b0;
+      margin-bottom: 20px;
+    }
+    
+    .section-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: var(--secondary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 5px;
+    }
+    
+    .info-item {
+      margin-bottom: 12px;
+    }
+    
+    .info-label {
+      font-weight: 600;
+      color: #b0b0b0;
+      display: inline-block;
+      width: 120px;
+    }
+    
+    .info-value {
+      color: var(--text-light);
+    }
+    
+    .btn-edit {
+      background-color: var(--primary-color);
+      border: none;
+      border-radius: 50px;
+      padding: 8px 20px;
+      font-weight: 600;
+    }
+    
+    .btn-edit:hover {
+      background-color: #5649d1;
+    }
+    
+    .nav-pills .nav-link.active {
+      background-color: var(--primary-color);
+    }
+    
+    .nav-pills .nav-link {
+      color: #b0b0b0;
+      border-radius: 5px;
+      margin-right: 10px;
+    }
+    
+    .nav-pills .nav-link:hover {
+      color: var(--text-light);
+    }
+    
+    .tab-content {
+      padding: 20px 0;
+    }
+    
+    .stats-card {
+      background: #252525;
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 15px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stats-number {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
+    .stats-label {
+      font-size: 0.9rem;
+      color: #b0b0b0;
+    }
+    
+    .progress {
+      background-color: #333;
+      height: 8px;
+      border-radius: 4px;
+    }
+    
+    .progress-bar {
+      background-color: var(--primary-color);
+    }
+    
+    .rating-stars {
+      color: var(--warning-color);
+      font-size: 1.2rem;
+    }
+    
+    .feedback-item {
+      background: #252525;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    
+    .feedback-date {
+      font-size: 0.8rem;
+      color: #b0b0b0;
+    }
+    
+    .device-card {
+      background: #252525;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid var(--primary-color);
+    }
+    
+    .device-status {
+      font-size: 0.8rem;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+    
+    .status-active {
+      background-color: rgba(0, 184, 148, 0.2);
+      color: var(--success-color);
+    }
+    
+    .status-inactive {
+      background-color: rgba(214, 48, 49, 0.2);
+      color: var(--danger-color);
+    }
+    
+    .form-control, .form-select {
+      background-color: #252525;
+      border: 1px solid #333;
+      color: #e0e0e0;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      background-color: #252525;
+      color: #e0e0e0;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(108, 92, 231, 0.25);
+    }
+    
+    .floating-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--primary-color);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .floating-btn:hover {
+      transform: scale(1.1);
+      background-color: #5649d1;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1100;
+    }
+    
+    .back-to-home {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+    }
+    
+    /* Light mode specific styles */
+    body.light-mode .stats-card,
+    body.light-mode .feedback-item,
+    body.light-mode .device-card,
+    body.light-mode .list-group-item {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+    }
+    
+    body.light-mode .form-control,
+    body.light-mode .form-select {
+      background-color: #ffffff;
+      border: 1px solid #ced4da;
+      color: #212529;
+    }
+    
+    body.light-mode .form-control:focus,
+    body.light-mode .form-select:focus {
+      background-color: #ffffff;
+      color: #212529;
+    }
+
+    /* Activity section improvements */
+    .activity-item {
+      background: #252525;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      color: #fff;
+    }
+    
+    body.light-mode .activity-item {
+      background: #f8f9fa;
+      color: #212529;
+    }
+    
+    .activity-query {
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+    
+    body.light-mode .activity-query {
+      color: var(--primary-color);
+    }
+  </style>
+</head>
+<body class="{{ 'light-mode' if theme == 'light' else '' }}">
+  <!-- Back to Home Button -->
+  <a href="{{ url_for('home') }}" class="btn btn-primary back-to-home">
+    <i class="fas fa-arrow-left"></i> Home
+  </a>
+
+  <div class="toast-container">
+    <div id="successToast" class="toast align-items-center text-white bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMessage"></div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-pic-container">
+              {% if user.profile_pic %}
+                <img src="{{ user.profile_pic }}" alt="Profile Picture" class="profile-pic" id="profilePicDisplay">
+              {% else %}
+                <i class="fas fa-user fa-3x text-light" id="profilePicPlaceholder"></i>
+              {% endif %}
+            </div>
+            <h1 class="user-name mt-3 text-light" id="userNameDisplay">{{ user.full_name }}</h1>
+            <p class="user-email" id="userEmailDisplay">{{ user.email }}</p>
+          </div>
+          
+          <div class="profile-body">
+            <ul class="nav nav-pills mb-4" id="profile-tab" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="overview-tab" data-bs-toggle="pill" data-bs-target="#overview" type="button" role="tab">Overview</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="activity-tab" data-bs-toggle="pill" data-bs-target="#activity" type="button" role="tab">Activity</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="feedback-tab" data-bs-toggle="pill" data-bs-target="#feedback" type="button" role="tab">Feedback</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="settings-tab" data-bs-toggle="pill" data-bs-target="#settings" type="button" role="tab">Settings</button>
+              </li>
+            </ul>
+            
+            <div class="tab-content" id="profile-tabContent">
+              <!-- Overview Tab -->
+              <div class="tab-pane fade show active" id="overview" role="tabpanel">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="stats-card">
+                      <div class="stats-number">{{ user.recommendations_count }}</div>
+                      <div class="stats-label">Recommendations</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="stats-card">
+                      <div class="stats-number">{{ user.movies_searched }}</div>
+                      <div class="stats-label">Movies Searched</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <h5 class="section-title mt-4">Profile Information</h5>
+                <div class="info-item">
+                  <span class="info-label">Full Name:</span>
+                  <span class="info-value" id="fullNameDisplay">{{ user.full_name }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Email:</span>
+                  <span class="info-value">{{ user.email }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Member Since:</span>
+                  <span class="info-value">{{ user.created_at.strftime('%B %d, %Y') if user.created_at else 'N/A' }}</span>
+                </div>
+                
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                  <button class="btn btn-edit me-md-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                  </button>
+                  <a href="{{ url_for('logout') }}" class="btn btn-danger">
+                    <i class="fas fa-sign-out-alt me-2"></i>Logout
+                  </a>
+                </div>
+              </div>
+              
+              <!-- Activity Tab -->
+              <div class="tab-pane fade" id="activity" role="tabpanel">
+                <h5 class="section-title">Recent Activity</h5>
+                <div id="activityList">
+                  {% if user.recent_searches %}
+                    {% for search in user.recent_searches %}
+                    <div class="activity-item">
+                      <div class="d-flex w-100 justify-content-between">
+                        <h6>Searched for <span class="activity-query">"{{ search.query }}"</span></h6>
+                        <small>{{ search.timestamp.strftime('%b %d, %H:%M') }}</small>
+                      </div>
+                      <p class="mb-1">Found {{ search.results_count }} recommendations</p>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                    <p>No recent activity found.</p>
+                  {% endif %}
+                </div>
+                <div class="mt-3">
+                  <input type="text" class="form-control" id="searchActivity" placeholder="Search your activity...">
+                </div>
+              </div>
+              
+              <!-- Feedback Tab -->
+              <div class="tab-pane fade" id="feedback" role="tabpanel">
+                <h5 class="section-title">Community Feedback</h5>
+                
+                <div id="feedbackList">
+                  {% if all_feedback %}
+                    {% for fb in all_feedback %}
+                    <div class="feedback-item">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <h6>{{ fb.user.full_name }} - {{ fb.type }}</h6>
+                        <div class="rating-stars">
+                          {% for i in range(5) %}
+                            {% if i < fb.rating %}
+                              <i class="fas fa-star"></i>
+                            {% else %}
+                              <i class="far fa-star"></i>
+                            {% endif %}
+                          {% endfor %}
+                        </div>
+                      </div>
+                      <p class="mt-2">{{ fb.message }}</p>
+                      <div class="feedback-date">Submitted on {{ fb.timestamp.strftime('%B %d, %Y') }}</div>
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                    <p>No feedback submitted yet.</p>
+                  {% endif %}
+                </div>
+                
+                <button class="btn btn-edit mt-3" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+                  <i class="fas fa-comment me-2"></i>Submit New Feedback
+                </button>
+              </div>
+              
+              <!-- Settings Tab -->
+              <div class="tab-pane fade" id="settings" role="tabpanel">
+                <h5 class="section-title">Account Settings</h5>
+                <form id="settingsForm">
+                  <div class="mb-3">
+                    <label for="emailNotifications" class="form-label">Email Notifications</label>
+                    <select class="form-select" id="emailNotifications" name="email_notifications">
+                      <option value="all" {% if user.get_settings().get('email_notifications', 'all') == 'all' %}selected{% endif %}>All Notifications</option>
+                      <option value="important" {% if user.get_settings().get('email_notifications') == 'important' %}selected{% endif %}>Only Important</option>
+                      <option value="none" {% if user.get_settings().get('email_notifications') == 'none' %}selected{% endif %}>Disabled</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" id="darkMode" name="dark_mode" {% if user.get_settings().get('dark_mode', True) %}checked{% endif %}>
+                    <label class="form-check-label" for="darkMode">Dark Mode</label>
+                  </div>
+                  
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <button type="reset" class="btn btn-secondary me-md-2">Cancel</button>
+                    <button type="submit" class="btn btn-edit">Save Changes</button>
+                  </div>
+                </form>
+                
+                <h5 class="section-title mt-5">Account Management</h5>
+                <div class="d-grid gap-2">
+                  <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                    <i class="fas fa-trash-alt me-2"></i>Delete Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Edit Profile Modal -->
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Edit Profile</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="editProfileForm" enctype="multipart/form-data">
+            <div class="mb-3">
+              <label for="fullName" class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="fullName" name="full_name" value="{{ user.full_name }}" required>
+            </div>
+            <div class="mb-3">
+              <label for="profilePic" class="form-label">Profile Picture</label>
+              <input class="form-control" type="file" id="profilePic" name="profile_pic" accept="image/*">
+              <small class="text-muted">Leave empty to keep current picture</small>
+            </div>
+            <div class="mb-3">
+              <label for="currentPassword" class="form-label">Current Password</label>
+              <input type="password" class="form-control" id="currentPassword" name="current_password">
+              <small class="text-muted">Required only if changing password</small>
+            </div>
+            <div class="mb-3">
+              <label for="newPassword" class="form-label">New Password</label>
+              <input type="password" class="form-control" id="newPassword" name="new_password">
+            </div>
+            <div class="mb-3">
+              <label for="confirmPassword" class="form-label">Confirm New Password</label>
+              <input type="password" class="form-control" id="confirmPassword" name="confirm_password">
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" form="editProfileForm" class="btn btn-edit">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Feedback Modal -->
+  <div class="modal fade" id="feedbackModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Submit Feedback</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="feedbackForm">
+            <div class="mb-3">
+              <label for="feedbackType" class="form-label">Feedback Type</label>
+              <select class="form-select" id="feedbackType" name="type" required>
+                <option value="" selected disabled>Select feedback type</option>
+                <option value="General Feedback">General Feedback</option>
+                <option value="Bug Report">Bug Report</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="Content Suggestion">Content Suggestion</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Rating</label>
+              <div class="rating-stars fs-3" id="ratingStars">
+                <i class="far fa-star" data-rating="1"></i>
+                <i class="far fa-star" data-rating="2"></i>
+                <i class="far fa-star" data-rating="3"></i>
+                <i class="far fa-star" data-rating="4"></i>
+                <i class="far fa-star" data-rating="5"></i>
+              </div>
+              <input type="hidden" id="ratingValue" name="rating" value="0" required>
+            </div>
+            <div class="mb-3">
+              <label for="feedbackMessage" class="form-label">Your Feedback</label>
+              <textarea class="form-control" id="feedbackMessage" name="message" rows="5" required></textarea>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" form="feedbackForm" class="btn btn-edit">Submit Feedback</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Delete Account Modal -->
+  <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger">Delete Account</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+          <p class="text-danger">All your data, including search history and preferences, will be permanently deleted.</p>
+          <form id="deleteAccountForm">
+            <div class="mb-3">
+              <label for="deletePassword" class="form-label">Enter your password to confirm</label>
+              <input type="password" class="form-control" id="deletePassword" name="password" required>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" form="deleteAccountForm" class="btn btn-danger">Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Floating Action Button -->
+  <div class="floating-btn" data-bs-toggle="modal" data-bs-target="#feedbackModal">
+    <i class="fas fa-comment-dots"></i>
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Initialize Toast
+    const toast = new bootstrap.Toast(document.getElementById('successToast'));
+    
+    // Show toast message
+    function showToast(message) {
+      document.getElementById('toastMessage').textContent = message;
+      toast.show();
+    }
+
+    // Star rating functionality for feedback
+    document.querySelectorAll('#ratingStars i').forEach(star => {
+      star.addEventListener('click', function() {
+        const rating = parseInt(this.getAttribute('data-rating'));
+        document.getElementById('ratingValue').value = rating;
+        
+        const stars = this.parentElement.querySelectorAll('i');
+        stars.forEach((s, index) => {
+          if (index < rating) {
+            s.classList.remove('far');
+            s.classList.add('fas');
+          } else {
+            s.classList.remove('fas');
+            s.classList.add('far');
+          }
+        });
+      });
+    });
+
+    // Edit Profile Form Submission
+    document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const response = await fetch('/update_profile', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        if (result.profile_pic) {
+          const profilePicDisplay = document.getElementById('profilePicDisplay');
+          const profilePicPlaceholder = document.getElementById('profilePicPlaceholder');
+          
+          if (profilePicDisplay) {
+            profilePicDisplay.src = result.profile_pic;
+          } else if (profilePicPlaceholder) {
+            profilePicPlaceholder.remove();
+            const container = document.querySelector('.profile-pic-container');
+            container.innerHTML = `<img src="${result.profile_pic}" alt="Profile Picture" class="profile-pic" id="profilePicDisplay">`;
+          }
+        }
+        
+        if (result.full_name) {
+          document.getElementById('userNameDisplay').textContent = result.full_name;
+          document.getElementById('fullNameDisplay').textContent = result.full_name;
+        }
+        
+        showToast('Profile updated successfully!');
+        bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
+      } else {
+        showToast(result.message || 'Error updating profile');
+      }
+    });
+
+    // Feedback Form Submission
+    document.getElementById('feedbackForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const response = await fetch('/submit_feedback', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Add new feedback to the list
+        const feedbackList = document.getElementById('feedbackList');
+        const newFeedback = document.createElement('div');
+        newFeedback.className = 'feedback-item';
+        newFeedback.innerHTML = `
+          <div class="d-flex justify-content-between align-items-center">
+            <h6>{{ user.full_name }} - ${formData.get('type')}</h6>
+            <div class="rating-stars">
+              ${'<i class="fas fa-star"></i>'.repeat(parseInt(formData.get('rating')))}
+              ${'<i class="far fa-star"></i>'.repeat(5 - parseInt(formData.get('rating')))}
+            </div>
+          </div>
+          <p class="mt-2">${formData.get('message')}</p>
+          <div class="feedback-date">Submitted just now</div>
+        `;
+        
+        if (feedbackList.querySelector('p')) {
+          feedbackList.querySelector('p').remove();
+        }
+        
+        feedbackList.prepend(newFeedback);
+        
+        showToast('Thank you for your feedback!');
+        bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+        this.reset();
+        
+        // Reset stars
+        document.querySelectorAll('#ratingStars i').forEach(star => {
+          star.classList.remove('fas');
+          star.classList.add('far');
+        });
+        document.getElementById('ratingValue').value = '0';
+      } else {
+        showToast(result.message || 'Error submitting feedback');
+      }
+    });
+
+    // Settings Form Submission
+    document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const response = await fetch('/update_settings', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        // Toggle dark/light mode immediately
+        if (formData.get('dark_mode') === 'on') {
+          document.body.classList.remove('light-mode');
+        } else {
+          document.body.classList.add('light-mode');
+        }
+        
+        showToast('Settings saved successfully!');
+      } else {
+        showToast(result.message || 'Error saving settings');
+      }
+    });
+
+    // Delete Account Form Submission
+    document.getElementById('deleteAccountForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const response = await fetch('/delete_account', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        window.location.href = '/';
+      } else {
+        showToast(result.message || 'Error deleting account');
+      }
+    });
+
+    // Activity search functionality
+    document.getElementById('searchActivity').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const activityItems = document.querySelectorAll('#activityList .activity-item');
+      
+      activityItems.forEach(item => {
+        const text = item.textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

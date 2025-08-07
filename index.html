@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>MovieMate AI – Smart Movie Recommendations</title>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" as="style">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" as="font" crossorigin>
+  
+  <!-- Preconnect to important origins -->
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+  
+  <!-- CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css">
+  <style>
+    :root {
+      --primary: #6C5CE7;
+      --primary-dark: #5649C0;
+      --secondary: #FD79A8;
+      --accent: #00CEC9;
+      --dark-bg: #0f0f12;
+      --dark-bg-light: #1a1a23;
+      --card-dark: #1a1a23;
+      --text-light: #f0f2f5;
+      --text-dark: #1a1a1a;
+      --success: #2ecc71;
+      --danger: #ff4757;
+      --warning: #f39c12;
+      --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+      --border-radius: 16px;
+      --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      --box-shadow-hover: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--dark-bg);
+      color: var(--text-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+      scroll-behavior: smooth;
+    }
+
+    /* Light Mode Styles */
+    .light-mode {
+      background-color: #f8f9fa;
+      color: var(--text-dark);
+    }
+    .light-mode .header-text,
+    .light-mode .subheader-text {
+      color: var(--text-dark);
+    }
+    .light-mode .movie-card {
+      background-color: white;
+      border-color: rgba(0,0,0,0.1);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+    .light-mode .movie-title {
+      color: var(--primary-dark);
+    }
+    .light-mode .movie-plot,
+    .light-mode .movie-year {
+      color: #555;
+    }
+    .light-mode .progress-container {
+      background: rgba(0,0,0,0.05);
+    }
+    .light-mode .no-more-results {
+      color: #666;
+    }
+
+    /* Navbar Styles */
+    .navbar {
+      background: rgba(15, 15, 18, 0.98);
+      backdrop-filter: blur(10px);
+      padding: 15px 0;
+      border-bottom: 1px solid rgba(108, 92, 231, 0.1);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .light-mode .navbar {
+      background: rgba(255, 255, 255, 0.98);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.6rem;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      margin: 0 8px;
+      position: relative;
+      transition: all 0.3s ease;
+      color: var(--text-light) !important;
+      padding: 10px 15px !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-radius: 8px;
+    }
+
+    .light-mode .nav-link {
+      color: var(--text-dark) !important;
+    }
+
+    .nav-link.active {
+      background: rgba(108, 92, 231, 0.1);
+      color: var(--primary) !important;
+    }
+
+    .nav-link:hover {
+      background: rgba(108, 92, 231, 0.1);
+    }
+
+    /* Dropdown Menu Fixes */
+    .dropdown-menu {
+      background: rgba(26, 26, 36, 0.98);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(108, 92, 231, 0.2);
+    }
+
+    .light-mode .dropdown-menu {
+      background: rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .dropdown-item {
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .light-mode .dropdown-item {
+      color: var(--text-dark);
+    }
+
+    .dropdown-item:hover {
+      background: rgba(108, 92, 231, 0.1);
+      color: var(--primary);
+    }
+
+    /* Hero Section with Background Image */
+    .hero-section {
+      position: relative;
+      padding: 180px 0;
+      overflow: hidden;
+      background: linear-gradient(rgba(15, 15, 18, 0.7), rgba(15, 15, 18, 0.8)), 
+                  url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1950') center/cover no-repeat;
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+    }
+
+    .light-mode .hero-section {
+      background: linear-gradient(rgba(248, 249, 250, 0.85), rgba(248, 249, 250, 0.9)), 
+                  url('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=1950') center/cover no-repeat;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .hero-title {
+      font-size: 3.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.2;
+    }
+
+    .hero-subtitle {
+      font-size: 1.3rem;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 40px;
+      max-width: 700px;
+    }
+
+    .light-mode .hero-subtitle {
+      color: rgba(0,0,0,0.9);
+    }
+
+    /* Search Container */
+    .search-container {
+      max-width: 800px;
+      margin: 40px auto 0;
+      position: relative;
+    }
+
+    .search-form {
+      position: relative;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .search-input {
+      height: 60px;
+      border-radius: 30px;
+      padding-left: 60px;
+      font-size: 1.1rem;
+      border: none;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(5px);
+      color: white;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 60px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .search-input.expanded {
+      width: 100%;
+      padding-right: 140px;
+    }
+
+    .light-mode .search-input {
+      background: rgba(0,0,0,0.08);
+      color: var(--text-dark);
+    }
+
+    .search-input:focus {
+      background: rgba(255,255,255,0.2);
+      box-shadow: 0 5px 20px rgba(108, 92, 231, 0.3);
+      color: white;
+      outline: none;
+    }
+
+    .light-mode .search-input:focus {
+      background: rgba(0,0,0,0.12);
+      color: var(--text-dark);
+    }
+
+    .search-input::placeholder {
+      color: rgba(255,255,255,0.7);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .search-input.expanded::placeholder {
+      opacity: 1;
+    }
+
+    .light-mode .search-input::placeholder {
+      color: rgba(0,0,0,0.6);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: white;
+      z-index: 2;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      font-size: 1.2rem;
+    }
+
+    .light-mode .search-icon {
+      color: var(--text-dark);
+    }
+
+    /* Search button */
+    .search-btn {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      height: 50px;
+      border-radius: 25px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      font-weight: 600;
+      transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateX(20px);
+      pointer-events: none;
+      font-size: 1rem;
+      padding: 0 25px;
+      color: white;
+    }
+
+    .search-btn.visible {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: all;
+    }
+
+    .search-btn:hover {
+      transform: translateX(0) translateY(-2px) !important;
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+    }
+
+    /* Autocomplete */
+    .ui-autocomplete {
+      background: var(--card-dark);
+      border-radius: 0 0 15px 15px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      max-height: 300px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      z-index: 1000;
+    }
+
+    .light-mode .ui-autocomplete {
+      background: white;
+    }
+
+    .ui-menu-item {
+      padding: 12px 20px;
+      color: var(--text-light);
+      transition: all 0.2s ease;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .light-mode .ui-menu-item {
+      color: var(--text-dark);
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .ui-menu-item:hover {
+      background: rgba(108, 92, 231, 0.1);
+      color: var(--primary);
+      cursor: pointer;
+    }
+
+    .ui-state-active {
+      background: rgba(108, 92, 231, 0.2);
+      color: var(--primary);
+      border: none;
+    }
+
+    /* Features Section */
+    .features-section {
+      padding: 100px 0;
+      background: var(--dark-bg-light);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .light-mode .features-section {
+      background: #f0f0f0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 60px;
+      position: relative;
+    }
+
+    .section-title h2 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .section-title .title-bg {
+      position: absolute;
+      font-size: 5rem;
+      font-weight: 900;
+      color: rgba(108, 92, 231, 0.05);
+      top: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: -1;
+      white-space: nowrap;
+    }
+
+    .features-container {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    .features-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      min-width: 300px;
+    }
+
+    .feature-details-container {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+    }
+
+    .feature-block {
+      background: var(--card-dark);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid rgba(108, 92, 231, 0.2);
+      box-shadow: var(--box-shadow);
+      position: relative;
+      overflow: hidden;
+      min-height: 200px;
+    }
+
+    .light-mode .feature-block {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-block:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--box-shadow-hover);
+    }
+
+    .feature-block.active {
+      background: linear-gradient(135deg, rgba(108, 92, 231, 0.2), rgba(253, 121, 168, 0.1));
+      border-color: var(--primary);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      color: var(--primary);
+      margin-bottom: 15px;
+      transition: var(--transition);
+    }
+
+    .feature-block.active .feature-icon {
+      color: white;
+      transform: scale(1.1);
+    }
+
+    .feature-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .light-mode .feature-title {
+      color: var(--text-dark);
+    }
+
+    .feature-block.active .feature-title {
+      color: white;
+    }
+
+    .feature-desc {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.95rem;
+      transition: var(--transition);
+    }
+
+    .light-mode .feature-desc {
+      color: rgba(0,0,0,0.6);
+    }
+
+    .feature-block.active .feature-desc {
+      color: rgba(255,255,255,0.9);
+    }
+
+    .feature-details-panel {
+      background: var(--card-dark);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      border: 1px solid rgba(108, 92, 231, 0.2);
+      box-shadow: var(--box-shadow);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      position: sticky;
+      top: 100px;
+    }
+
+    .light-mode .feature-details-panel {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .feature-details-title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .feature-details-text {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .light-mode .feature-details-text {
+      color: rgba(0,0,0,0.7);
+    }
+
+    .feature-benefits {
+      margin-top: 20px;
+    }
+
+    .feature-benefit {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+
+    .feature-benefit-icon {
+      color: var(--primary);
+      margin-right: 15px;
+      font-size: 1.2rem;
+    }
+
+    /* How It Works Section */
+    .how-it-works-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, #0f0f12 0%, #1a1a23 100%);
+      position: relative;
+    }
+
+    .light-mode .how-it-works-section {
+      background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    }
+
+    .how-it-works-container {
+      display: flex;
+      gap: 40px;
+      align-items: flex-start;
+    }
+
+    .steps-container {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .steps-details-container {
+      flex: 1;
+      min-width: 300px;
+      position: relative;
+    }
+
+    .steps-grid {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .step-item {
+      background: var(--card-dark);
+      border-radius: 20px;
+      padding: 30px;
+      cursor: pointer;
+      transition: var(--transition);
+      border: 1px solid rgba(108, 92, 231, 0.2);
+      box-shadow: var(--box-shadow);
+      position: relative;
+      overflow: hidden;
+      transform: rotate(45deg);
+      width: 180px;
+      height: 180px;
+      margin: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .light-mode .step-item {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .step-item:hover {
+      transform: rotate(45deg) scale(1.05);
+      box-shadow: var(--box-shadow-hover);
+    }
+
+    .step-item.active {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      transform: rotate(45deg) scale(1.05);
+    }
+
+    .step-content {
+      transform: rotate(-45deg);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .step-number {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 10px;
+      transition: var(--transition);
+    }
+
+    .step-item.active .step-number {
+      color: white;
+    }
+
+    .step-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-light);
+      transition: var(--transition);
+    }
+
+    .light-mode .step-title {
+      color: var(--text-dark);
+    }
+
+    .step-item.active .step-title {
+      color: white;
+    }
+
+    .steps-details-panel {
+      background: var(--card-dark);
+      border-radius: var(--border-radius);
+      padding: 30px;
+      border: 1px solid rgba(108, 92, 231, 0.2);
+      box-shadow: var(--box-shadow);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      position: sticky;
+      top: 100px;
+    }
+
+    .light-mode .steps-details-panel {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .step-details-title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: var(--primary);
+    }
+
+    .step-details-text {
+      color: rgba(255,255,255,0.8);
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .light-mode .step-details-text {
+      color: rgba(0,0,0,0.7);
+    }
+
+    .step-visual {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    .step-visual img {
+      max-width: 100%;
+      border-radius: var(--border-radius);
+      box-shadow: var(--box-shadow);
+    }
+
+    /* Trending Movies Section */
+    .trending-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, #0f0f12 0%, #1a1a23 100%);
+      position: relative;
+    }
+
+    .light-mode .trending-section {
+      background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    }
+
+    .movie-card {
+      background: var(--card-dark);
+      border-radius: var(--border-radius);
+      overflow: hidden;
+      transition: var(--transition);
+      height: 100%;
+      border: 1px solid rgba(108, 92, 231, 0.1);
+      box-shadow: var(--box-shadow);
+      position: relative;
+    }
+
+    .light-mode .movie-card {
+      background: white;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .movie-card:hover {
+      transform: translateY(-10px);
+      box-shadow: var(--box-shadow-hover);
+    }
+
+    .movie-poster {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+
+    .movie-card:hover .movie-poster {
+      transform: scale(1.05);
+    }
+
+    .movie-info {
+      padding: 20px;
+    }
+
+    .movie-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--text-light);
+      font-size: 1.2rem;
+    }
+
+    .light-mode .movie-title {
+      color: var(--text-dark);
+    }
+
+    .movie-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .movie-rating {
+      background: var(--warning);
+      color: white;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .movie-year {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+    }
+
+    .light-mode .movie-year {
+      color: rgba(0,0,0,0.6);
+    }
+
+    /* Star Journey Section */
+    .journey-section {
+      padding: 100px 0;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .journey-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=1000') center/cover;
+      opacity: 0.1;
+      z-index: 0;
+    }
+
+    .light-mode .journey-section::before {
+      opacity: 0.2;
+      filter: brightness(1.2);
+    }
+
+    .journey-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .journey-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      color: white;
+    }
+
+    .journey-description {
+      font-size: 1.2rem;
+      color: rgba(255,255,255,0.9);
+      margin-bottom: 40px;
+    }
+
+    .start-journey-btn {
+      display: inline-block;
+      padding: 18px 40px;
+      background: white;
+      color: var(--primary-dark);
+      border: none;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .start-journey-btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .start-journey-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.9));
+      z-index: -1;
+      transition: var(--transition);
+      opacity: 0;
+    }
+
+    .start-journey-btn:hover::before {
+      opacity: 1;
+    }
+
+    /* Footer */
+    .footer {
+      background: var(--dark-bg-light);
+      padding: 60px 0 20px;
+      position: relative;
+    }
+
+    .light-mode .footer {
+      background: #f0f0f0;
+    }
+
+    .footer-logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: inline-block;
+    }
+
+    .footer-description {
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 20px;
+      max-width: 300px;
+    }
+
+    .light-mode .footer-description {
+      color: rgba(0,0,0,0.6);
+    }
+
+    .footer-links h4 {
+      font-size: 1.2rem;
+      margin-bottom: 20px;
+      color: var(--text-light);
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    .light-mode .footer-links h4 {
+      color: var(--text-dark);
+    }
+
+    .footer-links h4::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+    }
+
+    .footer-links ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .footer-links li {
+      margin-bottom: 10px;
+    }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: var(--transition);
+      display: inline-block;
+    }
+
+    .light-mode .footer-links a {
+      color: rgba(0,0,0,0.6);
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+      transform: translateX(5px);
+    }
+
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .social-link {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: var(--transition);
+    }
+
+    .light-mode .social-link {
+      background: rgba(0,0,0,0.05);
+      color: var(--text-dark);
+    }
+
+    .social-link:hover {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      transform: translateY(-5px);
+    }
+
+    .footer-bottom {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+    }
+
+    .light-mode .footer-bottom {
+      border-top: 1px solid rgba(0,0,0,0.1);
+      color: rgba(0,0,0,0.5);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleIn {
+      from { transform: scale(0.9); }
+      to { transform: scale(1); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    .floating {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Scroll Reveal Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s cubic-bezier(0.5, 0, 0, 1);
+    }
+
+    .reveal.active {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Theme Toggle */
+    .theme-toggle {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+    }
+
+    .theme-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      color: white;
+      box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .theme-btn:hover {
+      transform: scale(1.1) rotate(30deg);
+      box-shadow: 0 8px 25px rgba(108, 92, 231, 0.6);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 1200px) {
+      .features-container,
+      .how-it-works-container {
+        flex-direction: column;
+      }
+      
+      .feature-details-panel,
+      .steps-details-panel {
+        position: static;
+        margin-top: 40px;
+      }
+    }
+
+    @media (max-width: 992px) {
+      .hero-title {
+        font-size: 2.8rem;
+      }
+      
+      .section-title h2 {
+        font-size: 2rem;
+      }
+      
+      .section-title .title-bg {
+        font-size: 4rem;
+        top: -20px;
+      }
+      
+      .feature-details-panel {
+        min-height: auto;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero-section {
+        padding: 120px 0;
+        text-align: center;
+      }
+      
+      .hero-title {
+        font-size: 2.2rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.1rem;
+      }
+      
+      .section-title h2 {
+        font-size: 1.8rem;
+      }
+      
+      .section-title .title-bg {
+        font-size: 3rem;
+      }
+      
+      .movie-poster {
+        height: 250px;
+      }
+      
+      .journey-title {
+        font-size: 2rem;
+      }
+      
+      .journey-description {
+        font-size: 1rem;
+      }
+      
+      .features-grid,
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .step-item {
+        margin: 10px auto;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .hero-title {
+        font-size: 1.8rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+      
+      .section-title h2 {
+        font-size: 1.5rem;
+      }
+      
+      .section-title .title-bg {
+        font-size: 2.5rem;
+        top: -15px;
+      }
+      
+      .movie-poster {
+        height: 200px;
+      }
+      
+      .search-input {
+        height: 50px;
+        padding-left: 50px;
+      }
+      
+      .search-btn {
+        height: 40px;
+        font-size: 0.9rem;
+        padding: 0 15px;
+      }
+      
+      .footer-links {
+        margin-bottom: 30px;
+      }
+      
+      .feature-block {
+        padding: 20px;
+        min-height: 160px;
+      }
+      
+      .feature-details-panel,
+      .steps-details-panel {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode">
+
+  <!-- Theme Toggle -->
+  <div class="theme-toggle">
+    <button class="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">
+      <i class="fas fa-moon"></i>
+    </button>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="/">
+        <img src="static/logos.png" alt="" class="logo-icon">
+        MovieMate AI
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="/">
+              <i class="fas fa-home"></i>
+              <span class="d-none d-md-inline">Home</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#features">
+              <i class="fas fa-star"></i>
+              <span class="d-none d-md-inline">Features</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#how-it-works">
+              <i class="fas fa-cogs"></i>
+              <span class="d-none d-md-inline">How It Works</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="/watchlist">
+              <i class="fas fa-bookmark"></i>
+              <span class="d-none d-md-inline">Watchlist</span>
+            </a>
+          </li>
+
+          {% if current_user.is_authenticated %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {% if current_user.profile_pic %}
+                <img src="{{ current_user.profile_pic }}" class="rounded-circle me-2" width="32" height="32" alt="Profile" loading="lazy">
+              {% else %}
+                <i class="fas fa-user-circle me-2"></i>
+              {% endif %}
+              <span class="d-none d-md-inline">{{ current_user.full_name }}</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="/profile"><i class="fas fa-user me-2"></i>Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="authDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-user me-1"></i> <span class="d-none d-md-inline">Account</span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="authDropdown">
+              <li><a class="dropdown-item" href="/login"><i class="fas fa-sign-in-alt me-2"></i>Login</a></li>
+              <li><a class="dropdown-item" href="/signup"><i class="fas fa-user-plus me-2"></i>Sign Up</a></li>
+            </ul>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section with Background Image -->
+  <section class="hero-section">
+    <div class="hero-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8">
+            <h1 class="hero-title reveal">Discover Your Next Favorite Movie</h1>
+            <p class="hero-subtitle reveal" data-delay="0.2s">AI-powered recommendations tailored just for you. Find hidden gems and rediscover classics with our intelligent movie matching system.</p>
+            
+            <div class="search-container reveal" data-delay="0.4s">
+              <form method="POST" action="/recommend" class="search-form" id="searchForm">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="movie" id="movie-title" class="form-control search-input"
+                      placeholder="Enter a movie you love..." autocomplete="off" required>
+                <button type="submit" class="btn search-btn">
+                  <i class="fas fa-search"></i> Recommend
+                </button>
+              </form>
+            </div>
+
+            <div class="mt-4 reveal" data-delay="0.6s">
+              <p class="text-light">Try: Inception, The Shawshank Redemption, Parasite</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features-section" id="features">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>Why Choose MovieMate?</h2>
+        <div class="title-bg">Features</div>
+      </div>
+      
+      <div class="features-container reveal" data-delay="0.2s">
+        <div class="features-grid">
+          <!-- Feature Block 1 -->
+          <div class="feature-block active" 
+               data-title="AI-Powered Recommendations" 
+               data-text="Our advanced algorithms analyze thousands of data points to find perfect matches for your taste."
+               data-benefits='[
+                 {"icon": "fa-brain", "text": "Learns from your ratings and preferences"},
+                 {"icon": "fa-chart-line", "text": "Continuously improves suggestions"},
+                 {"icon": "fa-magic", "text": "Discovers hidden gems you'll love"}
+               ]'>
+            <div class="feature-icon">
+              <i class="fas fa-brain"></i>
+            </div>
+            <h4 class="feature-title">AI-Powered</h4>
+            <p class="feature-desc">Smart algorithms that learn your preferences</p>
+          </div>
+          
+          <!-- Feature Block 2 -->
+          <div class="feature-block" 
+               data-title="Personalized Experience" 
+               data-text="Get recommendations tailored specifically to your unique taste profile."
+               data-benefits='[
+                 {"icon": "fa-user", "text": "Adapts to your changing tastes"},
+                 {"icon": "fa-heart", "text": "Considers your favorite genres"},
+                 {"icon": "fa-star", "text": "Matches your preferred styles"}
+               ]'>
+            <div class="feature-icon">
+              <i class="fas fa-heart"></i>
+            </div>
+            <h4 class="feature-title">Personalized</h4>
+            <p class="feature-desc">Tailored just for your unique taste</p>
+          </div>
+          
+          <!-- Feature Block 3 -->
+          <div class="feature-block" 
+               data-title="Expertly Curated" 
+               data-text="Our team of film experts ensures quality recommendations across all genres."
+               data-benefits='[
+                 {"icon": "fa-film", "text": "Hand-picked selections"},
+                 {"icon": "fa-award", "text": "Critically acclaimed films"},
+                 {"icon": "fa-gem", "text": "Hidden cinematic treasures"}
+               ]'>
+            <div class="feature-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <h4 class="feature-title">Curated</h4>
+            <p class="feature-desc">Hand-picked selections by film experts</p>
+          </div>
+          
+          <!-- Feature Block 4 -->
+          <div class="feature-block" 
+               data-title="Smart Filters" 
+               data-text="Find exactly what you're in the mood for with powerful filtering options."
+               data-benefits='[
+                 {"icon": "fa-sliders-h", "text": "Filter by mood, genre, era"},
+                 {"icon": "fa-users", "text": "Group recommendation tools"},
+                 {"icon": "fa-stream", "text": "Multiple sorting options"}
+               ]'>
+            <div class="feature-icon">
+              <i class="fas fa-filter"></i>
+            </div>
+            <h4 class="feature-title">Smart Filters</h4>
+            <p class="feature-desc">Find movies by mood, genre, and more</p>
+          </div>
+        </div>
+        
+        <!-- Features Details Panel -->
+        <div class="feature-details-container">
+          <div class="feature-details-panel">
+            <h3 class="feature-details-title">AI-Powered Recommendations</h3>
+            <p class="feature-details-text">Our advanced algorithms analyze thousands of data points to find perfect matches for your taste.</p>
+            
+            <div class="feature-benefits">
+              <div class="feature-benefit">
+                <i class="fas fa-brain feature-benefit-icon"></i>
+                <div>Learns from your ratings and preferences</div>
+              </div>
+              <div class="feature-benefit">
+                <i class="fas fa-chart-line feature-benefit-icon"></i>
+                <div>Continuously improves suggestions</div>
+              </div>
+              <div class="feature-benefit">
+                <i class="fas fa-magic feature-benefit-icon"></i>
+                <div>Discovers hidden gems you'll love</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trending Movies -->
+  <section class="trending-section">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>Trending This Week</h2>
+        <div class="title-bg">Popular</div>
+      </div>
+      <div class="row g-4">
+        {% for movie in trending_movies %}
+        <div class="col-xl-3 col-lg-4 col-md-6">
+          <div class="movie-card reveal" data-delay="{{ movie.delay }}">
+            <a href="https://www.themoviedb.org/movie/{{ movie.tmdb_id }}" target="_blank">
+              <img src="{{ movie.poster }}" class="movie-poster" alt="{{ movie.title }}" loading="lazy">
+            </a>
+            <div class="movie-info">
+              <h4 class="movie-title">{{ movie.title }}</h4>
+              <div class="movie-meta">
+                <span class="movie-rating">
+                  <i class="fas fa-star"></i> {{ movie.rating }}
+                </span>
+                <span class="movie-year">{{ movie.year }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section class="how-it-works-section" id="how-it-works">
+    <div class="container">
+      <div class="section-title reveal">
+        <h2>How MovieMate Works</h2>
+        <div class="title-bg">Process</div>
+      </div>
+      
+      <div class="how-it-works-container reveal" data-delay="0.2s">
+        <div class="steps-container">
+          <div class="steps-grid">
+            <!-- Step 1 -->
+            <div class="step-item active" 
+                 data-title="Step 1: Tell Us What You Like" 
+                 data-text="Start by rating movies you've watched or telling us about your favorite films. The more you share, the better our recommendations become. Our system analyzes your preferences to understand your unique taste."
+                 data-image="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60">
+              <div class="step-content">
+                <div class="step-number">1</div>
+                <div class="step-title">Tell Us What You Like</div>
+              </div>
+            </div>
+            
+            <!-- Step 2 -->
+            <div class="step-item" 
+                 data-title="Step 2: AI Analysis" 
+                 data-text="Our sophisticated algorithms analyze your preferences against thousands of films to understand your unique taste profile. We consider genre preferences, directors, actors, themes, and even subtle cinematic elements."
+                 data-image="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60">
+              <div class="step-content">
+                <div class="step-number">2</div>
+                <div class="step-title">AI Analysis</div>
+              </div>
+            </div>
+            
+            <!-- Step 3 -->
+            <div class="step-item" 
+                 data-title="Step 3: Smart Matching" 
+                 data-text="We match your profile with similar users and films to discover hidden gems you might love. Our system identifies patterns you might not even notice yourself to suggest perfect matches."
+                 data-image="https://images.unsplash.com/photo-1542204165-65bf26472b9b?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60">
+              <div class="step-content">
+                <div class="step-number">3</div>
+                <div class="step-title">Smart Matching</div>
+              </div>
+            </div>
+            
+            <!-- Step 4 -->
+            <div class="step-item" 
+                 data-title="Step 4: Personalized Recommendations" 
+                 data-text="Receive your customized movie suggestions, complete with explanations of why we think you'll enjoy each film. Our recommendations evolve as you rate more movies and your taste develops."
+                 data-image="https://images.unsplash.com/photo-1543536448-d209d2d13a1c?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60">
+              <div class="step-content">
+                <div class="step-number">4</div>
+                <div class="step-title">Personalized Recs</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Steps Details Panel -->
+        <div class="steps-details-container">
+          <div class="steps-details-panel">
+            <h3 class="step-details-title">Step 1: Tell Us What You Like</h3>
+            <p class="step-details-text">Start by rating movies you've watched or telling us about your favorite films. The more you share, the better our recommendations become. Our system analyzes your preferences to understand your unique taste.</p>
+            
+            <div class="step-visual">
+              <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60" alt="Step 1 Visual">
+            </div>
+            
+            <p>Our system analyzes your preferences to understand your unique taste. You can:</p>
+            <ul class="feature-benefits">
+              <li class="feature-benefit">
+                <i class="fas fa-star feature-benefit-icon"></i>
+                <div>Rate movies you've seen</div>
+              </li>
+              <li class="feature-benefit">
+                <i class="fas fa-list feature-benefit-icon"></i>
+                <div>Create watchlists</div>
+              </li>
+              <li class="feature-benefit">
+                <i class="fas fa-heart feature-benefit-icon"></i>
+                <div>Mark favorites</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Star Journey Section -->
+  <section class="journey-section">
+    <div class="journey-content">
+      <h2 class="journey-title reveal">Start Your Movie Journey</h2>
+      <p class="journey-description reveal" data-delay="0.2s">Ready to discover movies you'll love? Our AI will guide you through a world of cinematic wonders tailored just for you.</p>
+      <button class="start-journey-btn reveal" data-delay="0.4s" id="journeyTrigger">
+        Begin Discovery <i class="fas fa-arrow-right ms-2"></i>
+      </button>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-5 mb-lg-0">
+          <div class="footer-logo">MovieMate AI</div>
+          <p class="footer-description">Your personal movie recommendation engine powered by artificial intelligence and cinematic expertise.</p>
+          <div class="social-links">
+            <a href="https://www.instagram.com/hamza_atta_muhammad/" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-5 mb-md-0">
+          <div class="footer-links">
+            <h4>Quick Links</h4>
+            <ul>
+              <li><a href="/">Home</a></li>
+              <li><a href="#features">Features</a></li>
+              <li><a href="#how-it-works">How It Works</a></li>
+              <li><a href="/watchlist">Watchlist</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4 mb-5 mb-md-0">
+          <div class="footer-links">
+            <h4>Features</h4>
+            <ul>
+              <li><a href="#">AI Recommendations</a></li>
+              <li><a href="#">Personalized Lists</a></li>
+              <li><a href="#">Movie Discovery</a></li>
+              <li><a href="#">Watch Parties</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4">
+          <div class="footer-links">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#">Help Center</a></li>
+              <li><a href="#">Contact Us</a></li>
+              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="#">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-lg-2 col-md-4">
+          <div class="footer-links">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#">About</a></li>
+              <li><a href="#">Careers</a></li>
+              <li><a href="#">Blog</a></li>
+              <li><a href="#">Press</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 MovieMate AI. All rights reserved. <br>BY - Hamza Atta Muhammad BSSE-E-21-58</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+  <script>
+    // Theme Toggle
+    function toggleTheme() {
+      document.body.classList.toggle('dark-mode');
+      document.body.classList.toggle('light-mode');
+      localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
+      updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+      const icon = document.querySelector('.theme-btn i');
+      if (document.body.classList.contains('light-mode')) {
+        icon.className = 'fas fa-sun';
+      } else {
+        icon.className = 'fas fa-moon';
+      }
+    }
+
+    // Set initial theme
+    function setThemeFromStorage() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      if (savedTheme === 'light') {
+        document.body.classList.replace('dark-mode', 'light-mode');
+      }
+      updateThemeIcon();
+    }
+
+    // Search bar functionality
+    function setupSearchBar() {
+      const searchInput = document.getElementById('movie-title');
+      const searchBtn = document.querySelector('.search-btn');
+      const searchIcon = document.querySelector('.search-icon');
+     
+      // Expand search on focus
+      searchInput.addEventListener('focus', function() {
+        this.classList.add('expanded');
+        searchBtn.classList.add('visible');
+        this.setAttribute('placeholder', 'Enter a movie you love...');
+        searchIcon.style.left = '20px';
+      });
+     
+      // Collapse if empty on blur
+      searchInput.addEventListener('blur', function() {
+        if (this.value === '') {
+          this.classList.remove('expanded');
+          searchBtn.classList.remove('visible');
+          this.setAttribute('placeholder', '');
+          searchIcon.style.left = '20px';
+        }
+      });
+     
+      // Click on icon to focus
+      searchIcon.addEventListener('click', function() {
+        searchInput.focus();
+      });
+    }
+
+    // Autocomplete for movie search
+    function setupAutocomplete() {
+      $("#movie-title").autocomplete({
+        source: function(request, response) {
+          $.getJSON("/titles", { q: request.term }, function(data) {
+            response(data.titles);
+          });
+        },
+        minLength: 2,
+        select: function(event, ui) {
+          event.preventDefault();
+          $("#movie-title").val(ui.item.value);
+          $("#searchForm").submit();
+        },
+        focus: function(event, ui) {
+          event.preventDefault();
+          $("#movie-title").val(ui.item.value);
+        }
+      }).autocomplete("instance")._renderItem = function(ul, item) {
+        return $("<li>")
+          .append(`<div>${item.value}</div>`)
+          .appendTo(ul);
+      };
+    }
+
+    // Feature Blocks Interaction
+    function setupFeatureBlocks() {
+      const featureBlocks = document.querySelectorAll('.feature-block');
+      const featureDetailsPanel = document.querySelector('.feature-details-panel');
+      
+      featureBlocks.forEach(block => {
+        block.addEventListener('click', function() {
+          // Remove active class from all blocks
+          featureBlocks.forEach(b => b.classList.remove('active'));
+          
+          // Add active class to clicked block
+          this.classList.add('active');
+          
+          // Get data attributes
+          const title = this.getAttribute('data-title');
+          const text = this.getAttribute('data-text');
+          const benefits = JSON.parse(this.getAttribute('data-benefits'));
+          
+          // Update feature details
+          featureDetailsPanel.innerHTML = `
+            <h3 class="feature-details-title">${title}</h3>
+            <p class="feature-details-text">${text}</p>
+            <div class="feature-benefits">
+              ${benefits.map(benefit => `
+                <div class="feature-benefit">
+                  <i class="fas ${benefit.icon} feature-benefit-icon"></i>
+                  <div>${benefit.text}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          
+          // GSAP animation for the details panel
+          gsap.from(featureDetailsPanel, {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            ease: "power2.out"
+          });
+        });
+      });
+      
+      // Activate first block by default
+      if (featureBlocks.length > 0) {
+        featureBlocks[0].click();
+      }
+    }
+
+    // Steps Interaction
+    function setupStepsInteraction() {
+      const stepItems = document.querySelectorAll('.step-item');
+      const stepsDetailsPanel = document.querySelector('.steps-details-panel');
+      
+      stepItems.forEach(item => {
+        item.addEventListener('click', function() {
+          // Remove active class from all steps
+          stepItems.forEach(s => s.classList.remove('active'));
+          
+          // Add active class to clicked step
+          this.classList.add('active');
+          
+          // Get data attributes
+          const title = this.getAttribute('data-title');
+          const text = this.getAttribute('data-text');
+          const image = this.getAttribute('data-image');
+          
+          // Update step details
+          stepsDetailsPanel.innerHTML = `
+            <h3 class="step-details-title">${title}</h3>
+            <p class="step-details-text">${text}</p>
+            
+            <div class="step-visual">
+              <img src="${image}" alt="${title}">
+            </div>
+            
+            <p>Key aspects of this step:</p>
+            <ul class="feature-benefits">
+              <li class="feature-benefit">
+                <i class="fas fa-check-circle feature-benefit-icon"></i>
+                <div>Simple and intuitive process</div>
+              </li>
+              <li class="feature-benefit">
+                <i class="fas fa-clock feature-benefit-icon"></i>
+                <div>Takes just a few minutes</div>
+              </li>
+              <li class="feature-benefit">
+                <i class="fas fa-chart-line feature-benefit-icon"></i>
+                <div>Improves with more input</div>
+              </li>
+            </ul>
+          `;
+          
+          // GSAP animation for the details panel
+          gsap.from(stepsDetailsPanel, {
+            duration: 0.6,
+            y: 20,
+            opacity: 0,
+            ease: "power2.out"
+          });
+        });
+      });
+      
+      // Activate first step by default
+      if (stepItems.length > 0) {
+        stepItems[0].click();
+      }
+    }
+
+    // Scroll reveal animation
+    function animateOnScroll() {
+      const reveals = document.querySelectorAll('.reveal');
+      
+      reveals.forEach(reveal => {
+        const elementTop = reveal.getBoundingClientRect().top;
+        const elementVisible = 150;
+        const delay = reveal.getAttribute('data-delay') || 0;
+        
+        if (elementTop < window.innerHeight - elementVisible) {
+          setTimeout(() => {
+            reveal.classList.add('active');
+          }, delay * 1000);
+        }
+      });
+    }
+
+    // Smooth scrolling for anchor links
+    function setupSmoothScrolling() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          
+          const targetId = this.getAttribute('href');
+          if (targetId === '#') return;
+          
+          const targetElement = document.querySelector(targetId);
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop - 80,
+              behavior: 'smooth'
+            });
+            
+            // Update active nav link
+            document.querySelectorAll('.nav-link').forEach(link => {
+              link.classList.remove('active');
+            });
+            this.classList.add('active');
+          }
+        });
+      });
+    }
+
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', function() {
+      setThemeFromStorage();
+      setupSearchBar();
+      setupAutocomplete();
+      setupFeatureBlocks();
+      setupStepsInteraction();
+      setupSmoothScrolling();
+      animateOnScroll();
+      
+      // Initial scroll trigger
+      setTimeout(animateOnScroll, 500);
+      
+      // GSAP animations
+      gsap.from(".navbar", {
+        duration: 0.8,
+        y: -50,
+        opacity: 0,
+        ease: "power3.out"
+      });
+      
+      // Add floating animation to step items
+      const stepItems = document.querySelectorAll('.step-item');
+      stepItems.forEach((item, index) => {
+        gsap.to(item, {
+          y: 5,
+          duration: 2,
+          repeat: -1,
+          yoyo: true,
+          ease: "sine.inOut",
+          delay: index * 0.1
+        });
+      });
+      
+      // Journey button click
+      document.getElementById('journeyTrigger').addEventListener('click', function() {
+        document.querySelector('.search-input').focus();
+      });
+    });
+
+    window.addEventListener('scroll', animateOnScroll);
+  </script>
+</body>
+</html>
